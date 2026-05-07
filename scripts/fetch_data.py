@@ -115,7 +115,7 @@ def compute_summary(alunos: pd.DataFrame, crm: pd.DataFrame) -> dict:
 
 def main():
     creds   = build_credentials()
-    project = os.environ.get("GCP_PROJECT_ID", "leads-ts")
+    project = (os.environ.get("GCP_PROJECT_ID") or "leads-ts").strip()
     client  = bigquery.Client(credentials=creds, project=project)
 
     alunos_df = run_query(client, BQ_QUERY_SHEETS, "sheets_mentoria_tonho")
