@@ -1,6 +1,6 @@
 # Credenciais — NUNCA commitar
 *.json
-!dashboard/data.json
+!docs/data.json
 
 # Python
 __pycache__/
