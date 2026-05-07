@@ -1,187 +1,114 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard — Mentoria TS Tonho 2026</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentoria TS — Tonho 2026</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --border: #2e3250;
-      --accent: #4f7ef8;
-      --accent2: #34d399;
-      --accent3: #f97316;
-      --text: #e2e8f0;
-      --muted: #8892a4;
-      --danger: #f87171;
-      --warn: #fbbf24;
+      --bg:       #0b1d35;
+      --card:     #0f2745;
+      --card2:    #132f52;
+      --border:   #1a3a5c;
+      --cyan:     #00c8ff;
+      --cyan2:    #00e5c0;
+      --gold:     #f0b429;
+      --red:      #ff5c5c;
+      --text:     #e8f4ff;
+      --muted:    #7a9bbf;
+      --tblhead:  #1565c0;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh;
-    }
-
-    /* ── Header ── */
+    /* Header */
     header {
-      background: var(--surface);
+      background: #071528;
       border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      padding: 0 24px; height: 54px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 20;
     }
-    header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em; }
-    header h1 span { color: var(--accent); }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-brand { font-size: 1rem; font-weight: 700; color: var(--cyan); letter-spacing: .04em; }
+    .logo-sep   { color: var(--border); font-size: 1.3rem; }
+    .logo-title { font-size: .95rem; font-weight: 600; }
 
-    .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-
-    #status-badge {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 0.75rem; color: var(--muted);
-    }
-    #status-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--accent2);
-      animation: pulse 2s infinite;
-    }
-    #status-dot.stale { background: var(--warn); animation: none; }
-    #status-dot.error { background: var(--danger); animation: none; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
+    .hdr-right { display: flex; align-items: center; gap: 12px; }
+    #status-badge { display: flex; align-items: center; gap: 7px; font-size: .73rem; color: var(--muted); }
+    #dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan2); animation: pulse 2s infinite; }
+    #dot.stale { background: var(--gold); animation: none; }
+    #dot.error { background: var(--red);  animation: none; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
     #btn-refresh {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 7px 14px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: opacity 0.2s;
+      background: var(--tblhead); color: #fff;
+      border: none; border-radius: 6px; padding: 6px 14px;
+      font-size: .76rem; cursor: pointer; transition: opacity .2s;
     }
-    #btn-refresh:hover { opacity: 0.85; }
-    #btn-refresh:disabled { opacity: 0.5; cursor: default; }
+    #btn-refresh:hover { opacity: .8; }
+    #btn-refresh:disabled { opacity: .4; cursor: default; }
 
-    /* ── Layout ── */
-    main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+    /* Layout */
+    main { padding: 20px 24px; max-width: 1500px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
 
-    section { margin-bottom: 32px; }
-    section > h2 {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      margin-bottom: 14px;
-    }
-
-    /* ── KPI cards ── */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 14px;
-    }
+    /* KPI row */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
     .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 15px 16px; display: flex; flex-direction: column; gap: 5px;
+      border-top: 3px solid var(--accent, var(--cyan));
     }
-    .kpi-card .label { font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; }
-    .kpi-card .value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
-    .kpi-card .value.green { color: var(--accent2); }
-    .kpi-card .value.blue  { color: var(--accent); }
-    .kpi-card .value.orange{ color: var(--accent3); }
-    .kpi-card .value.red   { color: var(--danger); }
-    .kpi-card .sub { font-size: 0.7rem; color: var(--muted); margin-top: 6px; }
+    .kpi-icon  { font-size: 1.4rem; line-height: 1; }
+    .kpi-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .kpi-value { font-size: 1.75rem; font-weight: 700; line-height: 1.1; color: var(--accent, var(--cyan)); }
+    .kpi-sub   { font-size: .68rem; color: var(--muted); }
 
-    /* ── Charts ── */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 14px;
-    }
-    .chart-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-    }
-    .chart-card h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
-    .chart-card canvas { max-height: 260px; }
+    /* Two-column rows */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
 
-    /* ── Table ── */
-    .table-wrap {
-      overflow-x: auto;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+    /* Panel */
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .panel-hdr {
+      background: var(--tblhead); padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px;
     }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .panel-hdr h3 { font-size: .8rem; font-weight: 700; letter-spacing: .04em; color: #fff; }
+    .panel-body { padding: 16px; }
+    .panel-body canvas { max-height: 230px; }
+
+    /* Tables */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .79rem; }
     thead th {
-      background: var(--surface2);
-      padding: 10px 12px;
-      text-align: left;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
+      background: var(--tblhead); padding: 9px 12px;
+      text-align: left; color: #fff;
+      font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
       white-space: nowrap;
-      border-bottom: 1px solid var(--border);
     }
+    thead th.r { text-align: right; }
     tbody tr { border-bottom: 1px solid var(--border); }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--surface2); }
-    tbody td { padding: 9px 12px; white-space: nowrap; }
+    tbody tr:hover { background: var(--card2); }
+    tbody td { padding: 8px 12px; }
+    tbody td.r { text-align: right; font-variant-numeric: tabular-nums; }
+    .empty { text-align: center; padding: 30px; color: var(--muted); font-size: .8rem; }
 
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.68rem;
-      font-weight: 600;
-    }
-    .badge-green  { background: #14532d; color: var(--accent2); }
-    .badge-gray   { background: #1e293b; color: var(--muted); }
-    .badge-orange { background: #431407; color: var(--accent3); }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .67rem; font-weight: 700; }
+    .bg { background: #0d3320; color: #34d399; }
+    .bb { background: #0a2540; color: var(--cyan); }
+    .bo { background: #3d2000; color: var(--gold); }
+    .br { background: #3d0000; color: var(--red); }
 
-    .no-data {
-      text-align: center;
-      padding: 48px;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    /* ── Loading overlay ── */
+    /* Loading */
     #loading {
-      position: fixed; inset: 0;
-      background: rgba(15,17,23,0.85);
+      position: fixed; inset: 0; background: rgba(7,21,40,.92);
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem; color: var(--muted);
-      z-index: 100;
+      font-size: .88rem; color: var(--muted); z-index: 100;
     }
     #loading.hidden { display: none; }
-
-    /* ── Responsive ── */
-    @media (max-width: 600px) {
-      header { padding: 12px 16px; }
-      main   { padding: 16px; }
-    }
   </style>
 </head>
 <body>
@@ -189,12 +116,13 @@
 <div id="loading">Carregando dados...</div>
 
 <header>
-  <h1>Mentoria TS — <span>Tonho 2026</span></h1>
-  <div class="header-right">
-    <div id="status-badge">
-      <div id="status-dot"></div>
-      <span id="status-text">Atualizando...</span>
-    </div>
+  <div class="logo">
+    <span class="logo-brand">tradestars</span>
+    <span class="logo-sep">|</span>
+    <span class="logo-title">Mentoria Tonho 2026</span>
+  </div>
+  <div class="hdr-right">
+    <div id="status-badge"><div id="dot"></div><span id="status-text">Atualizando...</span></div>
     <button id="btn-refresh" onclick="loadData(true)">↻ Atualizar agora</button>
   </div>
 </header>
@@ -202,241 +130,255 @@
 <main>
 
   <!-- KPIs -->
-  <section>
-    <h2>Visão Geral</h2>
-    <div class="kpi-grid" id="kpi-grid">
-      <div class="kpi-card"><div class="label">Total de Alunos</div><div class="value blue" id="kpi-alunos">—</div></div>
-      <div class="kpi-card"><div class="label">Capital Líquido Total</div><div class="value green" id="kpi-capital">—</div><div class="sub">soma da carteira</div></div>
-      <div class="kpi-card"><div class="label">Saldo Total</div><div class="value green" id="kpi-saldo">—</div></div>
-      <div class="kpi-card"><div class="label">Bônus Total</div><div class="value orange" id="kpi-bonus">—</div></div>
-      <div class="kpi-card"><div class="label">Sem Comprovante</div><div class="value red" id="kpi-sem-comprov">—</div><div class="sub">depósito pendente</div></div>
-      <div class="kpi-card"><div class="label">Leads CRM (hoje)</div><div class="value blue" id="kpi-leads-crm">—</div></div>
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:var(--cyan)">
+      <div class="kpi-icon">👥</div><div class="kpi-label">Total de Alunos</div>
+      <div class="kpi-value" id="k-alunos">—</div>
     </div>
-  </section>
+    <div class="kpi-card" style="--accent:#34d399">
+      <div class="kpi-icon">✅</div><div class="kpi-label">Finalizados</div>
+      <div class="kpi-value" id="k-fin">—</div>
+      <div class="kpi-sub" id="k-fin-pct"></div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--cyan2)">
+      <div class="kpi-icon">💰</div><div class="kpi-label">Capital Líquido Total</div>
+      <div class="kpi-value" id="k-capital">—</div>
+    </div>
+    <div class="kpi-card" style="--accent:#60a5fa">
+      <div class="kpi-icon">📊</div><div class="kpi-label">Saldo Total</div>
+      <div class="kpi-value" id="k-saldo">—</div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--gold)">
+      <div class="kpi-icon">🎁</div><div class="kpi-label">Bônus Total</div>
+      <div class="kpi-value" id="k-bonus">—</div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--red)">
+      <div class="kpi-icon">⚠️</div><div class="kpi-label">Sem Comprovante</div>
+      <div class="kpi-value" id="k-comprov">—</div>
+      <div class="kpi-sub">depósito pendente</div>
+    </div>
+    <div class="kpi-card" style="--accent:#a78bfa">
+      <div class="kpi-icon">📱</div><div class="kpi-label">Leads CRM (hoje)</div>
+      <div class="kpi-value" id="k-crm">—</div>
+    </div>
+  </div>
 
-  <!-- Charts -->
-  <section>
-    <h2>Análises</h2>
-    <div class="charts-grid">
-      <div class="chart-card">
-        <h3>Alunos por Status</h3>
-        <canvas id="chart-status"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>Alunos por Broker</h3>
-        <canvas id="chart-broker"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>Capital Líquido por Broker (USD)</h3>
-        <canvas id="chart-capital-broker"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>Leads CRM por Atendente (hoje)</h3>
-        <canvas id="chart-atendente"></canvas>
-      </div>
+  <!-- Tabelas -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-hdr"><h3>📋 Performance por Broker</h3></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Broker</th><th class="r">Alunos</th><th class="r">Capital Líquido</th><th class="r">Média</th></tr></thead>
+        <tbody id="tbl-broker"><tr><td colspan="4" class="empty">Aguardando dados...</td></tr></tbody>
+      </table></div>
     </div>
-  </section>
+    <div class="panel">
+      <div class="panel-hdr"><h3>📌 Origem do CRM (hoje)</h3></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Status / Tag</th><th class="r">Quantidade</th></tr></thead>
+        <tbody id="tbl-crm"><tr><td colspan="2" class="empty">Aguardando dados...</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
 
-  <!-- Tabela de alunos -->
-  <section>
-    <h2>Lista de Alunos</h2>
-    <div class="table-wrap">
-      <table>
-        <thead id="table-head"></thead>
-        <tbody id="table-body"><tr><td colspan="20" class="no-data">Aguardando dados...</td></tr></tbody>
-      </table>
+  <!-- Gráficos -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-hdr"><h3>📈 Alunos por Status</h3></div>
+      <div class="panel-body"><canvas id="ch-status"></canvas></div>
     </div>
-  </section>
+    <div class="panel">
+      <div class="panel-hdr"><h3>🏦 Capital Líquido por Broker</h3></div>
+      <div class="panel-body"><canvas id="ch-broker"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Lista de alunos -->
+  <div class="panel">
+    <div class="panel-hdr"><h3>👤 Lista de Alunos</h3></div>
+    <div class="tbl-wrap"><table>
+      <thead id="al-head"></thead>
+      <tbody id="al-body"><tr><td colspan="10" class="empty">Aguardando dados...</td></tr></tbody>
+    </table></div>
+  </div>
 
 </main>
 
 <script>
-  const STALE_MINUTES = 10;
-  const REFRESH_INTERVAL_MS = 30_000;
+const REFRESH = 30_000, STALE = 10;
+const ch = {};
+const PAL = ['#00c8ff','#00e5c0','#f0b429','#60a5fa','#a78bfa','#ff5c5c','#34d399','#fb923c','#e879f9','#facc15'];
 
-  const chartInstances = {};
-
-  function fmt_usd(val) {
-    const n = parseFloat(val);
-    if (isNaN(n)) return '—';
-    return '$' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const CHART_OPT = {
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { ticks: { color: '#7a9bbf', font: { size: 11 } }, grid: { color: '#1a3a5c' } },
+    y: { ticks: { color: '#7a9bbf', font: { size: 11 } }, grid: { color: '#1a3a5c' } }
   }
+};
 
-  function fmt_num(val) {
-    const n = parseFloat(val);
-    return isNaN(n) ? '—' : n.toLocaleString('pt-BR');
+const usd = v => {
+  const n = parseFloat(String(v || '').replace(',', '.'));
+  return isNaN(n) ? '—' : '$' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+const num  = v => { const n = parseFloat(String(v || '').replace(',', '.')); return isNaN(n) ? 0 : n; };
+const set  = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+
+function setStatus(type, txt) {
+  document.getElementById('dot').className = type === 'ok' ? '' : type;
+  document.getElementById('status-text').textContent = txt;
+}
+
+function kill(id) { if (ch[id]) { ch[id].destroy(); delete ch[id]; } }
+
+function barChart(id, labels, vals) {
+  kill(id);
+  ch[id] = new Chart(document.getElementById(id).getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: vals, backgroundColor: PAL, borderRadius: 5, borderSkipped: false }] },
+    options: CHART_OPT
+  });
+}
+
+function doughnut(id, labels, vals) {
+  kill(id);
+  ch[id] = new Chart(document.getElementById(id).getContext('2d'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: vals, backgroundColor: PAL, borderWidth: 0, hoverOffset: 6 }] },
+    options: { plugins: { legend: { position: 'bottom', labels: { color: '#7a9bbf', font: { size: 11 }, padding: 10 } } } }
+  });
+}
+
+function col(cols, ...kws) {
+  for (const kw of kws) { const m = cols.find(c => c.toLowerCase().includes(kw)); if (m) return m; }
+  return null;
+}
+
+function badge(v) {
+  if (!v) return '<span class="badge bb">—</span>';
+  const l = String(v).toLowerCase();
+  if (l.includes('finaliz')) return `<span class="badge bg">${v}</span>`;
+  if (l.includes('promessa')) return `<span class="badge bo">${v}</span>`;
+  return `<span class="badge bb">${v}</span>`;
+}
+
+const COLS_ALUNOS = ['nome','data_de_entrada','telefone','e_mail','status_do_aluno','deposito','saldo','b_nus','capital_liquido','broker'];
+const LABELS = { nome:'Nome', data_de_entrada:'Entrada', telefone:'Telefone', e_mail:'E-mail',
+  status_do_aluno:'Status', deposito:'Depósito', saldo:'Saldo', b_nus:'Bônus', capital_liquido:'Capital Líq.', broker:'Broker' };
+const USD_COLS = new Set(['deposito','saldo','b_nus','capital_liquido']);
+
+function renderBroker(alunos) {
+  const tb = document.getElementById('tbl-broker');
+  if (!alunos.length) { tb.innerHTML = '<tr><td colspan="4" class="empty">Sem dados</td></tr>'; return; }
+  const cBroker = col(Object.keys(alunos[0]), 'broker');
+  const cCap    = col(Object.keys(alunos[0]), 'capital');
+  const map = {};
+  alunos.forEach(r => {
+    const b = (cBroker && r[cBroker]) || 'sem broker';
+    if (!map[b]) map[b] = { n: 0, c: 0 };
+    map[b].n++;
+    if (cCap) map[b].c += num(r[cCap]);
+  });
+  tb.innerHTML = Object.entries(map).sort((a,b)=>b[1].c-a[1].c).map(([b,d])=>
+    `<tr><td>${b}</td><td class="r">${d.n}</td><td class="r">${usd(d.c)}</td><td class="r">${usd(d.c/d.n)}</td></tr>`
+  ).join('');
+}
+
+function renderCRM(crm) {
+  const tb = document.getElementById('tbl-crm');
+  if (!crm.length) { tb.innerHTML = '<tr><td colspan="2" class="empty">Sem leads hoje</td></tr>'; return; }
+  const cTag = Object.keys(crm[0]).find(c => c.toLowerCase() === 'tags')
+            || Object.keys(crm[0]).find(c => c.toLowerCase().includes('crm_column'))
+            || Object.keys(crm[0]).find(c => c.toLowerCase().includes('tag'))
+            || Object.keys(crm[0])[0];
+  const map = {};
+  crm.forEach(r => { const t = r[cTag] || 'sem tag'; map[t] = (map[t] || 0) + 1; });
+  tb.innerHTML = Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([t,n])=>
+    `<tr><td>${t}</td><td class="r">${n}</td></tr>`
+  ).join('');
+}
+
+function renderAlunos(alunos) {
+  const head = document.getElementById('al-head');
+  const body = document.getElementById('al-body');
+  if (!alunos.length) {
+    head.innerHTML = '';
+    body.innerHTML = '<tr><td colspan="10" class="empty">Nenhum aluno encontrado.</td></tr>';
+    return;
   }
+  const allCols = Object.keys(alunos[0]);
+  const cols = COLS_ALUNOS.filter(c => allCols.includes(c));
+  if (!cols.length) cols.push(...allCols.slice(0, 10));
+  head.innerHTML = '<tr>' + cols.map(c => `<th${USD_COLS.has(c)?' class="r"':''}>${LABELS[c]||c}</th>`).join('') + '</tr>';
+  body.innerHTML = alunos.map(r =>
+    '<tr>' + cols.map(c => {
+      const v = r[c] ?? '';
+      if (c === 'status_do_aluno') return `<td>${badge(v)}</td>`;
+      if (USD_COLS.has(c)) return `<td class="r">${usd(v)}</td>`;
+      return `<td>${v}</td>`;
+    }).join('') + '</tr>'
+  ).join('');
+}
 
-  function setKpi(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  }
+async function loadData() {
+  document.getElementById('btn-refresh').disabled = true;
+  try {
+    const res = await fetch('./data.json?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
 
-  function setStatus(type, text) {
-    const dot  = document.getElementById('status-dot');
-    const span = document.getElementById('status-text');
-    dot.className  = type === 'ok' ? '' : type;
-    span.textContent = text;
-  }
+    const s      = data.summary || {};
+    const alunos = data.alunos  || [];
+    const crm    = data.crm_hoje || [];
 
-  function destroyChart(id) {
-    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
-  }
+    const total  = s.total_alunos ?? alunos.length;
+    const allSt  = { ...(s.por_status || {}) };
+    const norm   = k => k.toLowerCase();
+    const fin    = Object.entries(allSt).find(([k]) => norm(k).includes('finaliz'));
+    const finVal = fin ? fin[1] : 0;
 
-  const PALETTE = [
-    '#4f7ef8','#34d399','#f97316','#f59e0b','#a78bfa',
-    '#fb7185','#22d3ee','#84cc16','#e879f9','#60a5fa'
-  ];
+    set('k-alunos',  total  || '—');
+    set('k-fin',     finVal || '—');
+    set('k-fin-pct', total  ? (finVal/total*100).toFixed(2)+'%' : '');
+    set('k-capital', usd(s.capital_liquido_total));
+    set('k-saldo',   usd(s.saldo_total));
+    set('k-bonus',   usd(s.bonus_total));
+    set('k-comprov', s.sem_comprovante_deposito ?? '—');
+    set('k-crm',     crm.length);
 
-  function buildBarChart(canvasId, labels, values, label) {
-    destroyChart(canvasId);
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    chartInstances[canvasId] = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{ label, data: values, backgroundColor: PALETTE, borderRadius: 5, borderSkipped: false }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#8892a4', font: { size: 11 } }, grid: { color: '#2e3250' } },
-          y: { ticks: { color: '#8892a4', font: { size: 11 } }, grid: { color: '#2e3250' } }
-        }
-      }
-    });
-  }
+    renderBroker(alunos);
+    renderCRM(crm);
+    renderAlunos(alunos);
 
-  function buildDoughnutChart(canvasId, labels, values) {
-    destroyChart(canvasId);
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    chartInstances[canvasId] = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{ data: values, backgroundColor: PALETTE, borderWidth: 0 }]
-      },
-      options: {
-        plugins: {
-          legend: { position: 'bottom', labels: { color: '#8892a4', font: { size: 11 }, padding: 12 } }
-        }
-      }
-    });
-  }
-
-  function renderCharts(summary) {
-    if (summary.por_status) {
-      const entries = Object.entries(summary.por_status);
-      buildDoughnutChart('chart-status', entries.map(e=>e[0]), entries.map(e=>e[1]));
+    if (s.por_status) {
+      const e = Object.entries(s.por_status);
+      doughnut('ch-status', e.map(x=>x[0]), e.map(x=>x[1]));
     }
-    if (summary.por_broker) {
-      const entries = Object.entries(summary.por_broker);
-      buildBarChart('chart-broker', entries.map(e=>e[0]), entries.map(e=>e[1]), 'Alunos');
+    if (s.capital_por_broker) {
+      const e = Object.entries(s.capital_por_broker);
+      barChart('ch-broker', e.map(x=>x[0]), e.map(x=>x[1]));
     }
-    if (summary.capital_por_broker) {
-      const entries = Object.entries(summary.capital_por_broker);
-      buildBarChart('chart-capital-broker', entries.map(e=>e[0]), entries.map(e=>e[1]), 'Capital USD');
+
+    if (data.last_updated) {
+      const upd = new Date(data.last_updated);
+      const age = (Date.now() - upd.getTime()) / 60_000;
+      const t   = upd.toLocaleTimeString('pt-BR');
+      setStatus(age > STALE ? 'stale' : 'ok',
+        age > STALE ? `Desatualizado · última coleta às ${t}` : `Atualizado às ${t}`);
+    } else {
+      setStatus('stale', 'Sem dados ainda');
     }
-    if (summary.leads_por_atendente) {
-      const entries = Object.entries(summary.leads_por_atendente);
-      buildBarChart('chart-atendente', entries.map(e=>e[0]), entries.map(e=>e[1]), 'Leads');
-    }
+  } catch(e) {
+    setStatus('error', 'Erro ao carregar dados');
+    console.error(e);
+  } finally {
+    document.getElementById('btn-refresh').disabled = false;
+    document.getElementById('loading').classList.add('hidden');
   }
+}
 
-  const DESIRED_COLS = [
-    'Data de Entrada','Nome','Telefone','E-mail','Data de Depósito',
-    'Status do aluno','Depósito','Saldo','Bônus','Capital Liquido','Broker'
-  ];
-
-  function statusBadge(val) {
-    if (!val) return '<span class="badge badge-gray">—</span>';
-    const v = String(val).toLowerCase();
-    if (v.includes('finaliz')) return `<span class="badge badge-green">${val}</span>`;
-    return `<span class="badge badge-orange">${val}</span>`;
-  }
-
-  function renderTable(alunos) {
-    const head = document.getElementById('table-head');
-    const body = document.getElementById('table-body');
-
-    if (!alunos || alunos.length === 0) {
-      head.innerHTML = '';
-      body.innerHTML = '<tr><td colspan="20" class="no-data">Nenhum aluno encontrado nos dados.</td></tr>';
-      return;
-    }
-
-    // pick columns that exist
-    const allCols = Object.keys(alunos[0]);
-    const cols = DESIRED_COLS.filter(c => allCols.includes(c));
-    if (cols.length === 0) cols.push(...allCols.slice(0, 12));
-
-    head.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
-
-    const usdCols = new Set(['Depósito','Saldo','Bônus','Capital Liquido']);
-    const statusCol = 'Status do aluno';
-
-    body.innerHTML = alunos.map(row => {
-      const cells = cols.map(c => {
-        const val = row[c] ?? '';
-        if (c === statusCol) return `<td>${statusBadge(val)}</td>`;
-        if (usdCols.has(c)) return `<td>${fmt_usd(val)}</td>`;
-        return `<td>${val}</td>`;
-      }).join('');
-      return `<tr>${cells}</tr>`;
-    }).join('');
-  }
-
-  async function loadData(manual = false) {
-    const btn = document.getElementById('btn-refresh');
-    btn.disabled = true;
-    setStatus('', 'Atualizando...');
-
-    try {
-      const res = await fetch('./data.json?t=' + Date.now());
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      // KPIs
-      const s = data.summary || {};
-      setKpi('kpi-alunos',        s.total_alunos ?? '—');
-      setKpi('kpi-capital',       fmt_usd(s.capital_liquido_total));
-      setKpi('kpi-saldo',         fmt_usd(s.saldo_total));
-      setKpi('kpi-bonus',         fmt_usd(s.bonus_total));
-      setKpi('kpi-sem-comprov',   s.sem_comprovante_deposito ?? '—');
-      setKpi('kpi-leads-crm',     (data.crm_hoje || []).length);
-
-      // Charts
-      renderCharts(s);
-
-      // Table
-      renderTable(data.alunos || []);
-
-      // Status
-      if (data.last_updated) {
-        const updated = new Date(data.last_updated);
-        const ageMin  = (Date.now() - updated.getTime()) / 60_000;
-        const timeStr = updated.toLocaleTimeString('pt-BR');
-        if (ageMin > STALE_MINUTES) {
-          setStatus('stale', `Desatualizado · última coleta às ${timeStr}`);
-        } else {
-          setStatus('ok', `Atualizado às ${timeStr}`);
-        }
-      } else {
-        setStatus('stale', 'Sem dados ainda — aguardando primeira execução');
-      }
-
-    } catch (err) {
-      setStatus('error', 'Erro ao carregar dados');
-      console.error(err);
-    } finally {
-      btn.disabled = false;
-      document.getElementById('loading').classList.add('hidden');
-    }
-  }
-
-  // Init
-  loadData();
-  setInterval(() => loadData(), REFRESH_INTERVAL_MS);
+loadData();
+setInterval(loadData, REFRESH);
 </script>
 </body>
 </html>
