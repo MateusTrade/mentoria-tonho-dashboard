@@ -35,7 +35,8 @@ def build_credentials() -> Credentials:
     raw = os.environ.get("GOOGLE_CREDENTIALS")
     if not raw:
         raise EnvironmentError("Variável de ambiente GOOGLE_CREDENTIALS não definida.")
-    return Credentials.from_service_account_info(json.loads(raw.lstrip("﻿")), scopes=SCOPES)
+    cleaned = raw.encode("utf-8").decode("utf-8-sig")  # remove BOM se presente
+    return Credentials.from_service_account_info(json.loads(cleaned), scopes=SCOPES)
 
 
 def run_query(client: bigquery.Client, query: str, label: str) -> pd.DataFrame:
