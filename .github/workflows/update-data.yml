@@ -1,0 +1,45 @@
+name: Atualizar Dados do Dashboard
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar script de agregação
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: python scripts/fetch_data.py
+
+      - name: Commit e push se houve mudança
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add dashboard/data.json
+          if git diff --cached --quiet; then
+            echo "Nenhuma mudança nos dados, pulando commit."
+          else
+            git commit -m "chore: atualiza data.json [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+            git push
+          fi

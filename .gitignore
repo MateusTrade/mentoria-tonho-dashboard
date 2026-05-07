@@ -1,0 +1,9 @@
+# Credenciais — NUNCA commitar
+*.json
+!dashboard/data.json
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
