@@ -14,28 +14,29 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# Tabela sincronizada pelo Apps Script da planilha
 BQ_QUERY_SHEETS = """
     SELECT * EXCEPT(synced_at)
     FROM `leads-ts.Unnichat_Mentorias.sheets_mentoria_tonho`
 """
 
+# CRM completo do evento (sem filtro de data)
 BQ_QUERY_CRM = """
     SELECT *
     FROM `leads-ts.Unnichat_Mentorias.vw_crm_mentoriaTS_Tonho2026_staging`
-    WHERE DATE(event_date) = CURRENT_DATE('America/Sao_Paulo')
 """
 
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "docs", "data.json")
-
 SCOPES = ["https://www.googleapis.com/auth/bigquery.readonly"]
+
+NAO_CONTATADOS = {"não contatado", "nao contatado", "não responderam", "nao responderam",
+                  "não respondeu", "nao respondeu"}
 
 
 def build_credentials() -> Credentials:
     raw = os.environ.get("GOOGLE_CREDENTIALS")
     if not raw:
-        raise EnvironmentError("Variável de ambiente GOOGLE_CREDENTIALS não definida.")
-    cleaned = raw.encode("utf-8").decode("utf-8-sig")  # remove BOM se presente
+        raise EnvironmentError("GOOGLE_CREDENTIALS não definida.")
+    cleaned = raw.encode("utf-8").decode("utf-8-sig")
     return Credentials.from_service_account_info(json.loads(cleaned), scopes=SCOPES)
 
 
@@ -59,58 +60,84 @@ def safe_records(df: pd.DataFrame) -> list:
     return df.to_dict(orient="records")
 
 
-def compute_summary(alunos: pd.DataFrame, crm: pd.DataFrame) -> dict:
-    summary = {}
+def col(cols, *kws):
+    for kw in kws:
+        m = next((c for c in cols if kw in c.lower()), None)
+        if m:
+            return m
+    return None
 
-    if not alunos.empty:
-        def find(cols, *keywords):
-            for kw in keywords:
-                match = next((c for c in cols if kw in c.lower()), None)
-                if match:
-                    return match
-            return None
 
-        cols = alunos.columns.tolist()
-        col_capital    = find(cols, "capital")
-        col_saldo      = find(cols, "saldo")
-        col_bonus      = find(cols, "b_nus", "bonus", "bônus")
-        col_status     = find(cols, "status")
-        col_broker     = find(cols, "broker")
-        col_comprov_dep = find(cols, "comprovante_dep", "comprovante dep")
+def to_num(series):
+    return pd.to_numeric(series, errors="coerce").fillna(0)
 
-        def to_num(s):
-            return pd.to_numeric(s, errors="coerce").fillna(0)
 
-        summary["total_alunos"]          = len(alunos)
-        summary["capital_liquido_total"] = round(to_num(alunos[col_capital]).sum(), 2) if col_capital else 0
-        summary["saldo_total"]           = round(to_num(alunos[col_saldo]).sum(), 2)   if col_saldo   else 0
-        summary["bonus_total"]           = round(to_num(alunos[col_bonus]).sum(), 2)   if col_bonus   else 0
+def compute_summary(sheets: pd.DataFrame, crm: pd.DataFrame) -> dict:
+    s = {}
+
+    # ── CRM metrics ──────────────────────────────────────────────
+    if not crm.empty:
+        col_status = col(crm.columns.tolist(), "crm_column", "columnname", "tags")
+
+        s["total_alunos_crm"] = len(crm)
 
         if col_status:
-            summary["por_status"] = alunos[col_status].fillna("sem status").value_counts().to_dict()
-        if col_broker:
-            summary["por_broker"] = alunos[col_broker].fillna("sem broker").value_counts().to_dict()
-            if col_capital:
-                summary["capital_por_broker"] = (
-                    alunos.groupby(alunos[col_broker].fillna("sem broker"))[col_capital]
-                    .apply(lambda s: round(to_num(s).sum(), 2))
-                    .to_dict()
-                )
-        if col_comprov_dep:
-            sem = alunos[col_comprov_dep].isnull() | (alunos[col_comprov_dep].astype(str).str.strip() == "")
-            summary["sem_comprovante_deposito"] = int(sem.sum())
+            status_series = crm[col_status].fillna("").str.strip()
+            s["finalizados"] = int((status_series.str.lower() == "finalizado").sum())
+
+            nao_cont_mask = status_series.str.lower().isin(NAO_CONTATADOS)
+            s["contatados"] = int((~nao_cont_mask).sum())
+
+            s["crm_por_status"] = status_series.replace("", "sem status").value_counts().to_dict()
         else:
-            summary["sem_comprovante_deposito"] = 0
+            s["finalizados"] = 0
+            s["contatados"]  = len(crm)
 
-    if not crm.empty:
-        col_att  = next((c for c in crm.columns if "attendant" in c.lower() and "name" in c.lower()), None)
-        col_tags = next((c for c in crm.columns if c.lower() == "tags"), None)
-        if col_att:
-            summary["leads_por_atendente"] = crm[col_att].fillna("sem atendente").value_counts().to_dict()
-        if col_tags:
-            summary["leads_por_tag"] = crm[col_tags].fillna("sem tag").value_counts().to_dict()
+    # ── Sheets metrics ────────────────────────────────────────────
+    if not sheets.empty:
+        cols = sheets.columns.tolist()
+        col_dep    = col(cols, "deposito")
+        col_broker = col(cols, "broker")
+        col_date   = col(cols, "data_de_deposito", "deposito_data")
 
-    return summary
+        if col_dep:
+            dep_vals   = to_num(sheets[col_dep])
+            dep_mask   = dep_vals > 0
+            qtd_dep    = int(dep_mask.sum())
+            total_dep  = round(float(dep_vals[dep_mask].sum()), 2)
+            media_dep  = round(total_dep / qtd_dep, 2) if qtd_dep else 0
+
+            s["qtd_depositos"]    = qtd_dep
+            s["total_depositos"]  = total_dep
+            s["media_depositos"]  = media_dep
+
+            # Depósitos por dia (contagem)
+            if col_date:
+                dep_df = sheets[dep_mask].copy()
+                dep_df[col_date] = dep_df[col_date].astype(str).str[:10]
+                dep_df = dep_df[dep_df[col_date].str.len() == 10]
+                s["depositos_por_dia"] = (
+                    dep_df.groupby(col_date).size()
+                    .sort_index().to_dict()
+                )
+
+            # Por broker
+            if col_broker:
+                grp = sheets.groupby(sheets[col_broker].fillna("sem broker"))
+                broker_stats = {}
+                for broker, g in grp:
+                    vals   = to_num(g[col_dep])
+                    mask_b = vals > 0
+                    qtd    = int(mask_b.sum())
+                    total  = round(float(vals[mask_b].sum()), 2)
+                    broker_stats[broker] = {
+                        "qtd":   qtd,
+                        "total": total,
+                        "media": round(total / qtd, 2) if qtd else 0,
+                    }
+                s["por_broker"] = broker_stats
+
+    return s
 
 
 def main():
@@ -118,16 +145,16 @@ def main():
     project = (os.environ.get("GCP_PROJECT_ID") or "leads-ts").strip()
     client  = bigquery.Client(credentials=creds, project=project)
 
-    alunos_df = run_query(client, BQ_QUERY_SHEETS, "sheets_mentoria_tonho")
+    sheets_df = run_query(client, BQ_QUERY_SHEETS, "sheets_mentoria_tonho")
     crm_df    = run_query(client, BQ_QUERY_CRM,    "vw_crm_staging")
 
-    summary = compute_summary(alunos_df, crm_df)
+    summary = compute_summary(sheets_df, crm_df)
 
     output = {
         "last_updated": datetime.now(timezone.utc).isoformat(),
         "summary": summary,
-        "alunos":   safe_records(alunos_df),
-        "crm_hoje": safe_records(crm_df),
+        "alunos":  safe_records(sheets_df),
+        "crm":     safe_records(crm_df),
     }
 
     out_path = os.path.abspath(OUTPUT_PATH)
@@ -135,7 +162,7 @@ def main():
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    log.info("data.json salvo em: %s", out_path)
+    log.info("data.json salvo: %s", out_path)
 
 
 if __name__ == "__main__":

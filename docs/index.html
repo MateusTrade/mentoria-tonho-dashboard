@@ -7,106 +7,102 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg:       #0b1d35;
-      --card:     #0f2745;
-      --card2:    #132f52;
-      --border:   #1a3a5c;
-      --cyan:     #00c8ff;
-      --cyan2:    #00e5c0;
-      --gold:     #f0b429;
-      --red:      #ff5c5c;
-      --text:     #e8f4ff;
-      --muted:    #7a9bbf;
-      --tblhead:  #1565c0;
+      --bg:      #0f172a;
+      --surface: #1e293b;
+      --surface2:#263447;
+      --border:  #2d3f55;
+      --blue:    #3b82f6;
+      --blue-dk: #1d4ed8;
+      --blue-lt: #93c5fd;
+      --teal:    #22d3ee;
+      --text:    #e2e8f0;
+      --muted:   #94a3b8;
+      --pos:     #4ade80;
+      --warn:    #fbbf24;
+      --neg:     #f87171;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; }
 
     /* Header */
     header {
-      background: #071528;
+      background: #0a1120;
       border-bottom: 1px solid var(--border);
-      padding: 0 24px; height: 54px;
+      padding: 0 28px; height: 52px;
       display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 20;
+      position: sticky; top: 0; z-index: 10;
     }
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo-brand { font-size: 1rem; font-weight: 700; color: var(--cyan); letter-spacing: .04em; }
-    .logo-sep   { color: var(--border); font-size: 1.3rem; }
-    .logo-title { font-size: .95rem; font-weight: 600; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-name  { font-size: .95rem; font-weight: 700; color: var(--blue); letter-spacing: .04em; }
+    .brand-sep   { color: var(--border); }
+    .brand-event { font-size: .9rem; font-weight: 500; color: var(--text); }
 
-    .hdr-right { display: flex; align-items: center; gap: 12px; }
-    #status-badge { display: flex; align-items: center; gap: 7px; font-size: .73rem; color: var(--muted); }
-    #dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan2); animation: pulse 2s infinite; }
-    #dot.stale { background: var(--gold); animation: none; }
-    #dot.error { background: var(--red);  animation: none; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-    #btn-refresh {
-      background: var(--tblhead); color: #fff;
-      border: none; border-radius: 6px; padding: 6px 14px;
-      font-size: .76rem; cursor: pointer; transition: opacity .2s;
+    .hdr-r { display: flex; align-items: center; gap: 10px; }
+    #badge { display: flex; align-items: center; gap: 6px; font-size: .72rem; color: var(--muted); }
+    #dot   { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); animation: blink 2s infinite; }
+    #dot.stale { background: var(--warn); animation: none; }
+    #dot.error { background: var(--neg);  animation: none; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    #btn {
+      background: var(--blue-dk); color: #fff;
+      border: none; border-radius: 5px; padding: 5px 13px;
+      font-size: .74rem; cursor: pointer;
+      transition: background .2s;
     }
-    #btn-refresh:hover { opacity: .8; }
-    #btn-refresh:disabled { opacity: .4; cursor: default; }
+    #btn:hover    { background: var(--blue); }
+    #btn:disabled { opacity: .4; cursor: default; }
 
     /* Layout */
-    main { padding: 20px 24px; max-width: 1500px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+    main { padding: 22px 28px; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-    /* KPI row */
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
-    .kpi-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-      padding: 15px 16px; display: flex; flex-direction: column; gap: 5px;
-      border-top: 3px solid var(--accent, var(--cyan));
+    /* KPIs */
+    .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+    .kpi  {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 18px;
+      border-left: 3px solid var(--accent, var(--blue));
     }
-    .kpi-icon  { font-size: 1.4rem; line-height: 1; }
-    .kpi-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .kpi-value { font-size: 1.75rem; font-weight: 700; line-height: 1.1; color: var(--accent, var(--cyan)); }
-    .kpi-sub   { font-size: .68rem; color: var(--muted); }
+    .kpi-lbl { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+    .kpi-val { font-size: 1.9rem; font-weight: 700; color: var(--accent, var(--blue)); line-height: 1; }
+    .kpi-sub { font-size: .68rem; color: var(--muted); margin-top: 5px; }
 
-    /* Two-column rows */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+    /* Content grid */
+    .row2 { display: grid; grid-template-columns: 380px 1fr; gap: 16px; }
+    @media (max-width: 900px) { .row2 { grid-template-columns: 1fr; } }
 
-    /* Panel */
-    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-    .panel-hdr {
-      background: var(--tblhead); padding: 10px 16px;
-      display: flex; align-items: center; gap: 8px;
+    /* Card */
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
     }
-    .panel-hdr h3 { font-size: .8rem; font-weight: 700; letter-spacing: .04em; color: #fff; }
-    .panel-body { padding: 16px; }
-    .panel-body canvas { max-height: 230px; }
+    .card-hdr {
+      background: var(--blue-dk); padding: 10px 16px;
+    }
+    .card-hdr h3 { font-size: .78rem; font-weight: 600; letter-spacing: .04em; color: #fff; }
+    .card-body { padding: 16px; }
+    .card-body canvas { max-height: 220px; }
 
-    /* Tables */
+    /* Table */
     .tbl-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .79rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .78rem; }
     thead th {
-      background: var(--tblhead); padding: 9px 12px;
-      text-align: left; color: #fff;
-      font-size: .7rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .06em;
+      background: var(--blue-dk); padding: 9px 14px;
+      text-align: left; font-size: .69rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em; color: #dbeafe;
       white-space: nowrap;
     }
     thead th.r { text-align: right; }
     tbody tr { border-bottom: 1px solid var(--border); }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--card2); }
-    tbody td { padding: 8px 12px; }
-    tbody td.r { text-align: right; font-variant-numeric: tabular-nums; }
-    .empty { text-align: center; padding: 30px; color: var(--muted); font-size: .8rem; }
-
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .67rem; font-weight: 700; }
-    .bg { background: #0d3320; color: #34d399; }
-    .bb { background: #0a2540; color: var(--cyan); }
-    .bo { background: #3d2000; color: var(--gold); }
-    .br { background: #3d0000; color: var(--red); }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td { padding: 9px 14px; color: var(--text); }
+    tbody td.r { text-align: right; font-variant-numeric: tabular-nums; color: var(--blue-lt); }
+    .empty { text-align: center; padding: 28px; color: var(--muted); font-size: .78rem; }
 
     /* Loading */
     #loading {
-      position: fixed; inset: 0; background: rgba(7,21,40,.92);
+      position: fixed; inset: 0; background: rgba(10,17,32,.93);
       display: flex; align-items: center; justify-content: center;
-      font-size: .88rem; color: var(--muted); z-index: 100;
+      font-size: .85rem; color: var(--muted); z-index: 100;
     }
     #loading.hidden { display: none; }
   </style>
@@ -116,269 +112,208 @@
 <div id="loading">Carregando dados...</div>
 
 <header>
-  <div class="logo">
-    <span class="logo-brand">tradestars</span>
-    <span class="logo-sep">|</span>
-    <span class="logo-title">Mentoria Tonho 2026</span>
+  <div class="brand">
+    <span class="brand-name">tradestars</span>
+    <span class="brand-sep">|</span>
+    <span class="brand-event">Mentoria Tonho 2026</span>
   </div>
-  <div class="hdr-right">
-    <div id="status-badge"><div id="dot"></div><span id="status-text">Atualizando...</span></div>
-    <button id="btn-refresh" onclick="loadData(true)">↻ Atualizar agora</button>
+  <div class="hdr-r">
+    <div id="badge"><div id="dot"></div><span id="status-txt">Atualizando...</span></div>
+    <button id="btn" onclick="load(true)">↻ Atualizar agora</button>
   </div>
 </header>
 
 <main>
 
   <!-- KPIs -->
-  <div class="kpi-row">
-    <div class="kpi-card" style="--accent:var(--cyan)">
-      <div class="kpi-icon">👥</div><div class="kpi-label">Total de Alunos</div>
-      <div class="kpi-value" id="k-alunos">—</div>
+  <div class="kpis">
+    <div class="kpi" style="--accent:var(--blue)">
+      <div class="kpi-lbl">Total de Alunos</div>
+      <div class="kpi-val" id="k-total">—</div>
+      <div class="kpi-sub">no CRM</div>
     </div>
-    <div class="kpi-card" style="--accent:#34d399">
-      <div class="kpi-icon">✅</div><div class="kpi-label">Finalizados</div>
-      <div class="kpi-value" id="k-fin">—</div>
+    <div class="kpi" style="--accent:var(--pos)">
+      <div class="kpi-lbl">Finalizados</div>
+      <div class="kpi-val" id="k-fin">—</div>
       <div class="kpi-sub" id="k-fin-pct"></div>
     </div>
-    <div class="kpi-card" style="--accent:var(--cyan2)">
-      <div class="kpi-icon">💰</div><div class="kpi-label">Capital Líquido Total</div>
-      <div class="kpi-value" id="k-capital">—</div>
+    <div class="kpi" style="--accent:var(--teal)">
+      <div class="kpi-lbl">Contatados</div>
+      <div class="kpi-val" id="k-cont">—</div>
+      <div class="kpi-sub" id="k-cont-pct"></div>
     </div>
-    <div class="kpi-card" style="--accent:#60a5fa">
-      <div class="kpi-icon">📊</div><div class="kpi-label">Saldo Total</div>
-      <div class="kpi-value" id="k-saldo">—</div>
+    <div class="kpi" style="--accent:var(--blue-lt)">
+      <div class="kpi-lbl">Qtd Depósitos</div>
+      <div class="kpi-val" id="k-qtd">—</div>
+      <div class="kpi-sub" id="k-qtd-pct"></div>
     </div>
-    <div class="kpi-card" style="--accent:var(--gold)">
-      <div class="kpi-icon">🎁</div><div class="kpi-label">Bônus Total</div>
-      <div class="kpi-value" id="k-bonus">—</div>
+    <div class="kpi" style="--accent:var(--blue-lt)">
+      <div class="kpi-lbl">Total Depósitos</div>
+      <div class="kpi-val" id="k-total-dep">—</div>
     </div>
-    <div class="kpi-card" style="--accent:var(--red)">
-      <div class="kpi-icon">⚠️</div><div class="kpi-label">Sem Comprovante</div>
-      <div class="kpi-value" id="k-comprov">—</div>
-      <div class="kpi-sub">depósito pendente</div>
-    </div>
-    <div class="kpi-card" style="--accent:#a78bfa">
-      <div class="kpi-icon">📱</div><div class="kpi-label">Leads CRM (hoje)</div>
-      <div class="kpi-value" id="k-crm">—</div>
+    <div class="kpi" style="--accent:var(--blue-lt)">
+      <div class="kpi-lbl">Média por Depósito</div>
+      <div class="kpi-val" id="k-media">—</div>
     </div>
   </div>
 
-  <!-- Tabelas -->
-  <div class="two-col">
-    <div class="panel">
-      <div class="panel-hdr"><h3>📋 Performance por Broker</h3></div>
+  <!-- Tabela Broker + Gráfico Linha -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-hdr"><h3>Performance por Broker</h3></div>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>Broker</th><th class="r">Alunos</th><th class="r">Capital Líquido</th><th class="r">Média</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Broker</th>
+            <th class="r">Qtd Dep.</th>
+            <th class="r">Total</th>
+            <th class="r">Média</th>
+          </tr>
+        </thead>
         <tbody id="tbl-broker"><tr><td colspan="4" class="empty">Aguardando dados...</td></tr></tbody>
       </table></div>
     </div>
-    <div class="panel">
-      <div class="panel-hdr"><h3>📌 Origem do CRM (hoje)</h3></div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Status / Tag</th><th class="r">Quantidade</th></tr></thead>
-        <tbody id="tbl-crm"><tr><td colspan="2" class="empty">Aguardando dados...</td></tr></tbody>
-      </table></div>
-    </div>
-  </div>
 
-  <!-- Gráficos -->
-  <div class="two-col">
-    <div class="panel">
-      <div class="panel-hdr"><h3>📈 Alunos por Status</h3></div>
-      <div class="panel-body"><canvas id="ch-status"></canvas></div>
+    <div class="card">
+      <div class="card-hdr"><h3>Depósitos por Dia</h3></div>
+      <div class="card-body"><canvas id="ch-dep-dia"></canvas></div>
     </div>
-    <div class="panel">
-      <div class="panel-hdr"><h3>🏦 Capital Líquido por Broker</h3></div>
-      <div class="panel-body"><canvas id="ch-broker"></canvas></div>
-    </div>
-  </div>
-
-  <!-- Lista de alunos -->
-  <div class="panel">
-    <div class="panel-hdr"><h3>👤 Lista de Alunos</h3></div>
-    <div class="tbl-wrap"><table>
-      <thead id="al-head"></thead>
-      <tbody id="al-body"><tr><td colspan="10" class="empty">Aguardando dados...</td></tr></tbody>
-    </table></div>
   </div>
 
 </main>
 
 <script>
-const REFRESH = 30_000, STALE = 10;
-const ch = {};
-const PAL = ['#00c8ff','#00e5c0','#f0b429','#60a5fa','#a78bfa','#ff5c5c','#34d399','#fb923c','#e879f9','#facc15'];
-
-const CHART_OPT = {
-  plugins: { legend: { display: false } },
-  scales: {
-    x: { ticks: { color: '#7a9bbf', font: { size: 11 } }, grid: { color: '#1a3a5c' } },
-    y: { ticks: { color: '#7a9bbf', font: { size: 11 } }, grid: { color: '#1a3a5c' } }
-  }
-};
+const REFRESH_MS = 30_000;
+const STALE_MIN  = 10;
+let depChart = null;
 
 const usd = v => {
-  const n = parseFloat(String(v || '').replace(',', '.'));
+  const n = parseFloat(String(v ?? '').replace(',', '.'));
   return isNaN(n) ? '—' : '$' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
-const num  = v => { const n = parseFloat(String(v || '').replace(',', '.')); return isNaN(n) ? 0 : n; };
-const set  = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+const pct  = (a, b) => b ? (a / b * 100).toFixed(2) + '%' : '';
+const set  = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v ?? '—'; };
 
 function setStatus(type, txt) {
   document.getElementById('dot').className = type === 'ok' ? '' : type;
-  document.getElementById('status-text').textContent = txt;
+  document.getElementById('status-txt').textContent = txt;
 }
 
-function kill(id) { if (ch[id]) { ch[id].destroy(); delete ch[id]; } }
-
-function barChart(id, labels, vals) {
-  kill(id);
-  ch[id] = new Chart(document.getElementById(id).getContext('2d'), {
-    type: 'bar',
-    data: { labels, datasets: [{ data: vals, backgroundColor: PAL, borderRadius: 5, borderSkipped: false }] },
-    options: CHART_OPT
-  });
-}
-
-function doughnut(id, labels, vals) {
-  kill(id);
-  ch[id] = new Chart(document.getElementById(id).getContext('2d'), {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data: vals, backgroundColor: PAL, borderWidth: 0, hoverOffset: 6 }] },
-    options: { plugins: { legend: { position: 'bottom', labels: { color: '#7a9bbf', font: { size: 11 }, padding: 10 } } } }
-  });
-}
-
-function col(cols, ...kws) {
-  for (const kw of kws) { const m = cols.find(c => c.toLowerCase().includes(kw)); if (m) return m; }
-  return null;
-}
-
-function badge(v) {
-  if (!v) return '<span class="badge bb">—</span>';
-  const l = String(v).toLowerCase();
-  if (l.includes('finaliz')) return `<span class="badge bg">${v}</span>`;
-  if (l.includes('promessa')) return `<span class="badge bo">${v}</span>`;
-  return `<span class="badge bb">${v}</span>`;
-}
-
-const COLS_ALUNOS = ['nome','data_de_entrada','telefone','e_mail','status_do_aluno','deposito','saldo','b_nus','capital_liquido','broker'];
-const LABELS = { nome:'Nome', data_de_entrada:'Entrada', telefone:'Telefone', e_mail:'E-mail',
-  status_do_aluno:'Status', deposito:'Depósito', saldo:'Saldo', b_nus:'Bônus', capital_liquido:'Capital Líq.', broker:'Broker' };
-const USD_COLS = new Set(['deposito','saldo','b_nus','capital_liquido']);
-
-function renderBroker(alunos) {
+function renderBroker(por_broker) {
   const tb = document.getElementById('tbl-broker');
-  if (!alunos.length) { tb.innerHTML = '<tr><td colspan="4" class="empty">Sem dados</td></tr>'; return; }
-  const cBroker = col(Object.keys(alunos[0]), 'broker');
-  const cCap    = col(Object.keys(alunos[0]), 'capital');
-  const map = {};
-  alunos.forEach(r => {
-    const b = (cBroker && r[cBroker]) || 'sem broker';
-    if (!map[b]) map[b] = { n: 0, c: 0 };
-    map[b].n++;
-    if (cCap) map[b].c += num(r[cCap]);
-  });
-  tb.innerHTML = Object.entries(map).sort((a,b)=>b[1].c-a[1].c).map(([b,d])=>
-    `<tr><td>${b}</td><td class="r">${d.n}</td><td class="r">${usd(d.c)}</td><td class="r">${usd(d.c/d.n)}</td></tr>`
-  ).join('');
-}
-
-function renderCRM(crm) {
-  const tb = document.getElementById('tbl-crm');
-  if (!crm.length) { tb.innerHTML = '<tr><td colspan="2" class="empty">Sem leads hoje</td></tr>'; return; }
-  const cTag = Object.keys(crm[0]).find(c => c.toLowerCase() === 'tags')
-            || Object.keys(crm[0]).find(c => c.toLowerCase().includes('crm_column'))
-            || Object.keys(crm[0]).find(c => c.toLowerCase().includes('tag'))
-            || Object.keys(crm[0])[0];
-  const map = {};
-  crm.forEach(r => { const t = r[cTag] || 'sem tag'; map[t] = (map[t] || 0) + 1; });
-  tb.innerHTML = Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([t,n])=>
-    `<tr><td>${t}</td><td class="r">${n}</td></tr>`
-  ).join('');
-}
-
-function renderAlunos(alunos) {
-  const head = document.getElementById('al-head');
-  const body = document.getElementById('al-body');
-  if (!alunos.length) {
-    head.innerHTML = '';
-    body.innerHTML = '<tr><td colspan="10" class="empty">Nenhum aluno encontrado.</td></tr>';
+  if (!por_broker || !Object.keys(por_broker).length) {
+    tb.innerHTML = '<tr><td colspan="4" class="empty">Sem dados</td></tr>';
     return;
   }
-  const allCols = Object.keys(alunos[0]);
-  const cols = COLS_ALUNOS.filter(c => allCols.includes(c));
-  if (!cols.length) cols.push(...allCols.slice(0, 10));
-  head.innerHTML = '<tr>' + cols.map(c => `<th${USD_COLS.has(c)?' class="r"':''}>${LABELS[c]||c}</th>`).join('') + '</tr>';
-  body.innerHTML = alunos.map(r =>
-    '<tr>' + cols.map(c => {
-      const v = r[c] ?? '';
-      if (c === 'status_do_aluno') return `<td>${badge(v)}</td>`;
-      if (USD_COLS.has(c)) return `<td class="r">${usd(v)}</td>`;
-      return `<td>${v}</td>`;
-    }).join('') + '</tr>'
-  ).join('');
+  tb.innerHTML = Object.entries(por_broker)
+    .sort((a, b) => b[1].total - a[1].total)
+    .map(([broker, d]) => `
+      <tr>
+        <td>${broker}</td>
+        <td class="r">${d.qtd}</td>
+        <td class="r">${usd(d.total)}</td>
+        <td class="r">${usd(d.media)}</td>
+      </tr>`).join('');
 }
 
-async function loadData() {
-  document.getElementById('btn-refresh').disabled = true;
+function renderLineChart(dep_por_dia) {
+  if (depChart) { depChart.destroy(); depChart = null; }
+  if (!dep_por_dia || !Object.keys(dep_por_dia).length) return;
+
+  const entries = Object.entries(dep_por_dia).sort((a, b) => a[0].localeCompare(b[0]));
+  const labels  = entries.map(e => {
+    const d = new Date(e[0] + 'T12:00:00');
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  });
+  const values = entries.map(e => e[1]);
+
+  const ctx = document.getElementById('ch-dep-dia').getContext('2d');
+  depChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Depósitos',
+        data: values,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,.12)',
+        borderWidth: 2,
+        pointBackgroundColor: '#3b82f6',
+        pointRadius: 4,
+        fill: true,
+        tension: .3
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.parsed.y + ' depósito(s)'
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#94a3b8', font: { size: 11 } },
+          grid:  { color: '#2d3f55' }
+        },
+        y: {
+          ticks: { color: '#94a3b8', font: { size: 11 }, stepSize: 1 },
+          grid:  { color: '#2d3f55' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+async function load() {
+  document.getElementById('btn').disabled = true;
   try {
     const res = await fetch('./data.json?t=' + Date.now());
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
+    const s = data.summary || {};
 
-    const s      = data.summary || {};
-    const alunos = data.alunos  || [];
-    const crm    = data.crm_hoje || [];
+    const total = s.total_alunos_crm ?? 0;
+    const fin   = s.finalizados ?? 0;
+    const cont  = s.contatados  ?? 0;
+    const qtd   = s.qtd_depositos ?? 0;
 
-    const total  = s.total_alunos ?? alunos.length;
-    const allSt  = { ...(s.por_status || {}) };
-    const norm   = k => k.toLowerCase();
-    const fin    = Object.entries(allSt).find(([k]) => norm(k).includes('finaliz'));
-    const finVal = fin ? fin[1] : 0;
+    set('k-total',     total || '—');
+    set('k-fin',       fin   || '—');
+    set('k-fin-pct',   total ? pct(fin, total)  : '');
+    set('k-cont',      cont  || '—');
+    set('k-cont-pct',  total ? pct(cont, total) : '');
+    set('k-qtd',       qtd   || '—');
+    set('k-qtd-pct',   total ? pct(qtd, total)  : '');
+    set('k-total-dep', usd(s.total_depositos));
+    set('k-media',     usd(s.media_depositos));
 
-    set('k-alunos',  total  || '—');
-    set('k-fin',     finVal || '—');
-    set('k-fin-pct', total  ? (finVal/total*100).toFixed(2)+'%' : '');
-    set('k-capital', usd(s.capital_liquido_total));
-    set('k-saldo',   usd(s.saldo_total));
-    set('k-bonus',   usd(s.bonus_total));
-    set('k-comprov', s.sem_comprovante_deposito ?? '—');
-    set('k-crm',     crm.length);
-
-    renderBroker(alunos);
-    renderCRM(crm);
-    renderAlunos(alunos);
-
-    if (s.por_status) {
-      const e = Object.entries(s.por_status);
-      doughnut('ch-status', e.map(x=>x[0]), e.map(x=>x[1]));
-    }
-    if (s.capital_por_broker) {
-      const e = Object.entries(s.capital_por_broker);
-      barChart('ch-broker', e.map(x=>x[0]), e.map(x=>x[1]));
-    }
+    renderBroker(s.por_broker);
+    renderLineChart(s.depositos_por_dia);
 
     if (data.last_updated) {
       const upd = new Date(data.last_updated);
       const age = (Date.now() - upd.getTime()) / 60_000;
       const t   = upd.toLocaleTimeString('pt-BR');
-      setStatus(age > STALE ? 'stale' : 'ok',
-        age > STALE ? `Desatualizado · última coleta às ${t}` : `Atualizado às ${t}`);
+      setStatus(age > STALE_MIN ? 'stale' : 'ok',
+        age > STALE_MIN ? `Desatualizado · coleta às ${t}` : `Atualizado às ${t}`);
     } else {
       setStatus('stale', 'Sem dados ainda');
     }
-  } catch(e) {
+  } catch (e) {
     setStatus('error', 'Erro ao carregar dados');
     console.error(e);
   } finally {
-    document.getElementById('btn-refresh').disabled = false;
+    document.getElementById('btn').disabled = false;
     document.getElementById('loading').classList.add('hidden');
   }
 }
 
-loadData();
-setInterval(loadData, REFRESH);
+load();
+setInterval(load, REFRESH_MS);
 </script>
 </body>
 </html>
