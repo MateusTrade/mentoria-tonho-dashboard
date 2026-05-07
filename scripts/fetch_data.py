@@ -26,7 +26,7 @@ BQ_QUERY_CRM = """
     WHERE DATE(event_date) = CURRENT_DATE('America/Sao_Paulo')
 """
 
-OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "dashboard", "data.json")
+OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "docs", "data.json")
 
 SCOPES = ["https://www.googleapis.com/auth/bigquery.readonly"]
 
